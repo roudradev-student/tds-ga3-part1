@@ -18,7 +18,7 @@ _CACHE = {}
 def _ck(*parts):
     return hashlib.sha256("||".join(map(str, parts)).encode()).hexdigest()
 import asyncio
-async def chat(messages, model=None, max_tokens=800, force_json=True, retries=4):
+async def chat(messages, model=None, max_tokens=800, force_json=True, retries=1):
     key = _ck("chat", model, json.dumps(messages, sort_keys=True, default=str))
     if key in _CACHE:
         return _CACHE[key]
@@ -45,10 +45,10 @@ async def chat(messages, model=None, max_tokens=800, force_json=True, retries=4)
 GEMINI_MODELS = ["gemini-2.5-flash-lite", "gemini-2.5-flash", "gemini-2.0-flash",
                  "gemini-flash-latest"]
 
-async def gemini_transcribe(payload, attempts_per_model=3):
+async def gemini_transcribe(payload, attempts_per_model=1):
     global last_debug_info
     last_err = ""
-    async with httpx.AsyncClient(timeout=120) as c:
+    async with httpx.AsyncClient(timeout=10) as c:
         for model in GEMINI_MODELS:
             for attempt in range(attempts_per_model):
                 try:
